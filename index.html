@@ -1,0 +1,69 @@
+<html>
+<head>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<style>
+
+</style>
+    <body>
+      <div>
+        <div>
+          <input type="text" id="username"></input>
+          <button class="btn" type="button">Name</button>
+        </div>
+        <div>
+          <select id="photo">
+            <option value="elephants">Elephants!</option>
+            <option value="tigers">Tigers!</option>
+          </select>
+        </div>
+        <div>
+          <input type="text" id="input"></input>
+          <button type="button" id="submit">Submit Bid</button>
+        </div>
+        <p id="wins"></p>
+        <p id="bids"></p>
+        <div>
+          <img id="img1" src="http://assets.worldwildlife.org/photos/1140/images/story_full_width/elephants_8.1.2012_whytheymatter2_XL_287397.jpg?1345538433"/>
+          <img id="img2" src="https://i.ytimg.com/vi/rrWYiPkLW60/maxresdefault.jpg"/>
+        </div>
+      </div>
+    </body>
+</html>
+
+
+
+<script>
+$('#img1').hide()
+$('#img2').hide()
+
+var socket = io()
+
+socket.on('connect', function () {
+    console.log('I have made a persistent two-way connection to the server!');
+})
+
+socket.on('bid', function(content) {
+  $('#bids').html('<div>Current Bid: '+content+'<div>')
+})
+
+socket.on('impression', function(info) {
+  $('#wins').html('<div>Winning Bid: '+info.username+ ' at: $'+info.amount+'<div>')
+  if (info.image === 'elephants') {
+    $('#img1').show()
+    $('#img2').hide()
+  } else {
+    $('#img2').show()
+    $('#img1').hide()
+  }
+  console.log($('#photo').val())
+})
+
+$('#submit').click(function(){
+  socket.emit('bid', { "amount" : $('#input').val(),
+                      "username": $('#username').val(),
+                         "image": $('#photo').val() })
+})
+
+</script>
